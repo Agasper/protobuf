@@ -422,7 +422,8 @@ namespace Google.Protobuf
             {
                 tempSpan.Reverse();
             }
-            return Unsafe.ReadUnaligned<float>(ref MemoryMarshal.GetReference(tempSpan));
+            var r = MemoryMarshal.GetReference(tempSpan);
+            return Unsafe.ReadUnaligned<float>(ref r);
         }
 
         /// <summary>

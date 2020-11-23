@@ -68,7 +68,8 @@ namespace Google.Protobuf
             {
                 // if there's enough space in the buffer, write the float directly into the buffer
                 var floatSpan = buffer.Slice(state.position, length);
-                Unsafe.WriteUnaligned(ref MemoryMarshal.GetReference(floatSpan), value);
+                var r = MemoryMarshal.GetReference(floatSpan);
+                Unsafe.WriteUnaligned(ref r, value);
 
                 if (!BitConverter.IsLittleEndian)
                 {
@@ -89,7 +90,8 @@ namespace Google.Protobuf
 
             // TODO(jtattermusch): deduplicate the code. Populating the span is the same as for the fastpath.
             Span<byte> floatSpan = stackalloc byte[length];
-            Unsafe.WriteUnaligned(ref MemoryMarshal.GetReference(floatSpan), value);
+            var r = MemoryMarshal.GetReference(floatSpan);
+            Unsafe.WriteUnaligned(ref r, value);
             if (!BitConverter.IsLittleEndian)
             {
                 floatSpan.Reverse();
