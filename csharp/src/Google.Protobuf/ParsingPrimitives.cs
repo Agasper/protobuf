@@ -394,15 +394,19 @@ namespace Google.Protobuf
         /// <summary>
         /// Parses a float value.
         /// </summary>
-        public static float ParseFloat(ref ReadOnlySpan<byte> buffer, ref ParserInternalState state)
+        public static unsafe float ParseFloat(ref ReadOnlySpan<byte> buffer, ref ParserInternalState state)
         {
             const int length = sizeof(float);
             if (!BitConverter.IsLittleEndian || state.bufferPos + length > state.bufferSize)
             {
                 return ParseFloatSlow(ref buffer, ref state);
             }
+
             // ReadUnaligned uses processor architecture for endianness.
-            float result = Unsafe.ReadUnaligned<float>(ref MemoryMarshal.GetReference(buffer.Slice(state.bufferPos, length)));
+            var floatSpan = buffer.Slice(state.bufferPos, length);
+            uint tmpBuffer = (uint)(floatSpan[0] | floatSpan[1] << 8 | floatSpan[2] << 16 | floatSpan[3] << 24);
+            var result = *((float*)&tmpBuffer);
+
             state.bufferPos += length;
             return result;  
         }
@@ -422,8 +426,9 @@ namespace Google.Protobuf
             {
                 tempSpan.Reverse();
             }
-            var r = MemoryMarshal.GetReference(tempSpan);
-            return Unsafe.ReadUnaligned<float>(ref r);
+
+            uint tmpBuffer = (uint)(tempSpan[0] | tempSpan[1] << 8 | tempSpan[2] << 16 | tempSpan[3] << 24);
+            return *((float*)&tmpBuffer);
         }
 
         /// <summary>
