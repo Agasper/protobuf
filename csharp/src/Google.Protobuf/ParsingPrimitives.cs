@@ -380,15 +380,7 @@ namespace Google.Protobuf
         /// </summary>
         public static double ParseDouble(ref ReadOnlySpan<byte> buffer, ref ParserInternalState state)
         {
-            const int length = sizeof(double);
-            if (!BitConverter.IsLittleEndian || state.bufferPos + length > state.bufferSize)
-            {
-                return BitConverter.Int64BitsToDouble((long)ParseRawLittleEndian64(ref buffer, ref state));
-            }
-            // ReadUnaligned uses processor architecture for endianness.
-            double result = Unsafe.ReadUnaligned<double>(ref MemoryMarshal.GetReference(buffer.Slice(state.bufferPos, length)));
-            state.bufferPos += length;
-            return result;
+            return BitConverter.Int64BitsToDouble((long)ParseRawLittleEndian64(ref buffer, ref state));
         }
 
         /// <summary>
@@ -403,9 +395,12 @@ namespace Google.Protobuf
             }
 
             // ReadUnaligned uses processor architecture for endianness.
-            var floatSpan = buffer.Slice(state.bufferPos, length);
-            uint tmpBuffer = (uint)(floatSpan[0] | floatSpan[1] << 8 | floatSpan[2] << 16 | floatSpan[3] << 24);
-            var result = *((float*)&tmpBuffer);
+            ReadOnlySpan<byte> floatSpan = buffer.Slice(state.bufferPos, length);
+            uint tmpBuffer = (uint)(floatSpan[0] 
+                | floatSpan[1] << 8
+                | floatSpan[2] << 16
+                | floatSpan[3] << 24);
+            float result = *((float*)&tmpBuffer);
 
             state.bufferPos += length;
             return result;  
