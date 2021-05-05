@@ -343,7 +343,7 @@ namespace Google.Protobuf.Collections
         /// </summary>
         public void Clear()
         {
-            array = EmptyArray;
+            //array = EmptyArray;
             count = 0;
         }
 
