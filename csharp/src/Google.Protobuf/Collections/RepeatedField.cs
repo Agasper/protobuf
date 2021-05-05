@@ -343,8 +343,19 @@ namespace Google.Protobuf.Collections
         /// </summary>
         public void Clear()
         {
-            //array = EmptyArray;
+            array = EmptyArray;
             count = 0;
+        }
+
+        public T[] GetBuffer()
+        {
+            return array;
+        }
+
+        public void SetBuffer(T[] array, int count)
+        {
+            this.array = array;
+            this.count = count;
         }
 
         /// <summary>
