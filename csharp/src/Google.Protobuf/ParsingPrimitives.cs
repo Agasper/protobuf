@@ -380,7 +380,12 @@ namespace Google.Protobuf
         /// </summary>
         public static double ParseDouble(ref ReadOnlySpan<byte> buffer, ref ParserInternalState state)
         {
-            return BitConverter.Int64BitsToDouble((long)ParseRawLittleEndian64(ref buffer, ref state));
+            const int length = sizeof(double);
+            UnionArray unionArray = new UnionArray();
+            unionArray._bytes = ReadRawBytes(ref buffer, ref state, length);
+            return unionArray._double[0];
+            //return BitConverter.Int64BitsToDouble(BitConverter.ToInt64(ReadRawBytes(ref buffer, ref state, 8), 0));
+            //return BitConverter.Int64BitsToDouble((long)ParseRawLittleEndian64(ref buffer, ref state));
         }
 
         /// <summary>
