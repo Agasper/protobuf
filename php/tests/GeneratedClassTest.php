@@ -1,7 +1,5 @@
 <?php
 
-require_once('generated/NoNamespaceEnum.php');
-require_once('generated/NoNamespaceMessage.php');
 require_once('test_base.php');
 require_once('test_util.php');
 
@@ -23,6 +21,13 @@ use Foo\testLowerCaseMessage;
 use Foo\testLowerCaseEnum;
 use PBEmpty\PBEcho\TestEmptyPackage;
 use Php\Test\TestNamespace;
+
+# This is not allowed, but we at least shouldn't crash.
+class C extends \Google\Protobuf\Internal\Message {
+    public function __construct($data = null) {
+        parent::__construct($data);
+    }
+}
 
 class GeneratedClassTest extends TestBase
 {
@@ -69,6 +74,33 @@ class GeneratedClassTest extends TestBase
         $this->assertSame(MAX_INT32, $m->getOptionalInt32());
         $m->setOptionalInt32(MIN_INT32_STRING);
         $this->assertSame(MIN_INT32, $m->getOptionalInt32());
+    }
+
+    #########################################################
+    # Test deprecated int32 field.
+    #########################################################
+
+    public function testDeprecatedInt32Field()
+    {
+        $m = new TestMessage();
+
+        // temporarily change error handler to capture the deprecated errors
+        $deprecationCount = 0;
+        set_error_handler(function ($errno, $errstr) use (&$deprecationCount) {
+            if ($errstr === 'deprecated_optional_int32 is deprecated.') {
+                $deprecationCount++;
+            }
+        }, E_USER_DEPRECATED);
+
+        // default test set
+        $m->setDeprecatedOptionalInt32(MAX_INT32);
+        $this->assertSame(MAX_INT32, $m->getDeprecatedOptionalInt32());
+        $m->setDeprecatedOptionalInt32(MIN_INT32);
+        $this->assertSame(MIN_INT32, $m->getDeprecatedOptionalInt32());
+
+        restore_error_handler();
+
+        $this->assertSame(4, $deprecationCount);
     }
 
     #########################################################
@@ -260,21 +292,21 @@ class GeneratedClassTest extends TestBase
         $this->assertEquals(1, TestEnum::value('ONE'));
     }
 
-    /**
-     * @expectedException UnexpectedValueException
-     * @expectedExceptionMessage Enum Foo\TestEnum has no name defined for value -1
-     */
     public function testInvalidEnumValueThrowsException()
     {
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage(
+            'Enum Foo\TestEnum has no name defined for value -1');
+
         TestEnum::name(-1);
     }
 
-    /**
-     * @expectedException UnexpectedValueException
-     * @expectedExceptionMessage Enum Foo\TestEnum has no value defined for name DOES_NOT_EXIST
-     */
     public function testInvalidEnumNameThrowsException()
     {
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage(
+            'Enum Foo\TestEnum has no value defined for name DOES_NOT_EXIST');
+
         TestEnum::value('DOES_NOT_EXIST');
     }
 
@@ -313,17 +345,17 @@ class GeneratedClassTest extends TestBase
 
         // Set integer.
         $m->setOptionalFloat(1);
-        $this->assertEquals(1.0, $m->getOptionalFloat(), '', MAX_FLOAT_DIFF);
+        $this->assertFloatEquals(1.0, $m->getOptionalFloat(), MAX_FLOAT_DIFF);
 
         // Set float.
         $m->setOptionalFloat(1.1);
-        $this->assertEquals(1.1, $m->getOptionalFloat(), '', MAX_FLOAT_DIFF);
+        $this->assertFloatEquals(1.1, $m->getOptionalFloat(), MAX_FLOAT_DIFF);
 
         // Set string.
         $m->setOptionalFloat('2');
-        $this->assertEquals(2.0, $m->getOptionalFloat(), '', MAX_FLOAT_DIFF);
+        $this->assertFloatEquals(2.0, $m->getOptionalFloat(), MAX_FLOAT_DIFF);
         $m->setOptionalFloat('3.1');
-        $this->assertEquals(3.1, $m->getOptionalFloat(), '', MAX_FLOAT_DIFF);
+        $this->assertFloatEquals(3.1, $m->getOptionalFloat(), MAX_FLOAT_DIFF);
     }
 
     #########################################################
@@ -336,17 +368,17 @@ class GeneratedClassTest extends TestBase
 
         // Set integer.
         $m->setOptionalDouble(1);
-        $this->assertEquals(1.0, $m->getOptionalDouble(), '', MAX_FLOAT_DIFF);
+        $this->assertFloatEquals(1.0, $m->getOptionalDouble(), MAX_FLOAT_DIFF);
 
         // Set float.
         $m->setOptionalDouble(1.1);
-        $this->assertEquals(1.1, $m->getOptionalDouble(), '', MAX_FLOAT_DIFF);
+        $this->assertFloatEquals(1.1, $m->getOptionalDouble(), MAX_FLOAT_DIFF);
 
         // Set string.
         $m->setOptionalDouble('2');
-        $this->assertEquals(2.0, $m->getOptionalDouble(), '', MAX_FLOAT_DIFF);
+        $this->assertFloatEquals(2.0, $m->getOptionalDouble(), MAX_FLOAT_DIFF);
         $m->setOptionalDouble('3.1');
-        $this->assertEquals(3.1, $m->getOptionalDouble(), '', MAX_FLOAT_DIFF);
+        $this->assertFloatEquals(3.1, $m->getOptionalDouble(), MAX_FLOAT_DIFF);
     }
 
     #########################################################
@@ -439,6 +471,8 @@ class GeneratedClassTest extends TestBase
     public function testMessageField()
     {
         $m = new TestMessage();
+
+        $this->assertNull($m->getOptionalMessage());
 
         $sub_m = new Sub();
         $sub_m->setA(1);
@@ -725,10 +759,10 @@ class GeneratedClassTest extends TestBase
     public function testMessageWithoutNamespace()
     {
         $m = new TestMessage();
-        $n = new NoNameSpaceMessage();
+        $n = new NoNamespaceMessage();
         $m->setOptionalNoNamespaceMessage($n);
         $repeatedNoNamespaceMessage = $m->getRepeatedNoNamespaceMessage();
-        $repeatedNoNamespaceMessage[] = new NoNameSpaceMessage();
+        $repeatedNoNamespaceMessage[] = new NoNamespaceMessage();
         $m->setRepeatedNoNamespaceMessage($repeatedNoNamespaceMessage);
 
         // test nested messages
@@ -741,9 +775,9 @@ class GeneratedClassTest extends TestBase
     public function testEnumWithoutNamespace()
     {
         $m = new TestMessage();
-        $m->setOptionalNoNamespaceEnum(NoNameSpaceEnum::VALUE_A);
+        $m->setOptionalNoNamespaceEnum(NoNamespaceEnum::VALUE_A);
         $repeatedNoNamespaceEnum = $m->getRepeatedNoNamespaceEnum();
-        $repeatedNoNamespaceEnum[] = NoNameSpaceEnum::VALUE_A;
+        $repeatedNoNamespaceEnum[] = NoNamespaceEnum::VALUE_A;
         $m->setRepeatedNoNamespaceEnum($repeatedNoNamespaceEnum);
         $this->assertTrue(true);
     }
@@ -1467,6 +1501,8 @@ class GeneratedClassTest extends TestBase
             }
             $key = new TestMessage($key);
         }
+
+        $this->assertTrue(true);
     }
 
     public function testOneofMessageInArrayConstructor()
@@ -1476,6 +1512,8 @@ class GeneratedClassTest extends TestBase
         ]);
         $this->assertSame('oneof_message', $m->getMyOneof());
         $this->assertNotNull($m->getOneofMessage());
+
+        $this->assertTrue(true);
     }
 
     public function testOneofStringInArrayConstructor()
@@ -1483,6 +1521,30 @@ class GeneratedClassTest extends TestBase
         $m = new TestMessage([
             'oneof_string' => 'abc',
         ]);
+
+        $this->assertTrue(true);
+    }
+
+    #########################################################
+    # Test clone.
+    #########################################################
+
+    public function testClone()
+    {
+        $m = new TestMessage([
+            'optional_int32' => -42,
+            'optional_int64' => -43,
+            'optional_message' => new Sub([
+                'a' => 33
+            ]),
+            'map_int32_message' => [1 => new Sub(['a' => 36])],
+        ]);
+        $m2 = clone $m;
+        $this->assertEquals($m->getOptionalInt32(), $m2->getOptionalInt32());
+        $this->assertEquals($m->getOptionalInt64(), $m2->getOptionalInt64());
+        $this->assertSame($m->getOptionalMessage(), $m2->getOptionalMessage());
+        $this->assertSame($m->getMapInt32Message()[1], $m2->getMapInt32Message()[1]);
+        $this->assertEquals($m->serializeToJsonString(), $m2->serializeToJsonString());
     }
 
     #########################################################
@@ -1527,6 +1589,186 @@ class GeneratedClassTest extends TestBase
         array_walk($values, function (&$value) {});
         $m = new TestMessage();
         $m->setOptionalString($values[0]);
+
+        $this->assertTrue(true);
+    }
+
+    #########################################################
+    # Test equality
+    #########################################################
+
+    public function testShallowEquality()
+    {
+        $m1 = new TestMessage([
+            'optional_int32' => -42,
+            'optional_int64' => -43,
+            'optional_uint32' => 42,
+            'optional_uint64' => 43,
+            'optional_sint32' => -44,
+            'optional_sint64' => -45,
+            'optional_fixed32' => 46,
+            'optional_fixed64' => 47,
+            'optional_sfixed32' => -46,
+            'optional_sfixed64' => -47,
+            'optional_float' => 1.5,
+            'optional_double' => 1.6,
+            'optional_bool' => true,
+            'optional_string' => 'a',
+            'optional_bytes' => 'bbbb',
+            'optional_enum' => TestEnum::ONE,
+            ]);
+        $data = $m1->serializeToString();
+        $m2 = new TestMessage();
+        $m2->mergeFromString($data);
+        $this->assertTrue($m1 == $m2);
+
+        $m1->setOptionalInt32(1234);
+        $this->assertTrue($m1 != $m2);
+    }
+
+    public function testDeepEquality()
+    {
+        $m1 = new TestMessage([
+            'optional_int32' => -42,
+            'optional_int64' => -43,
+            'optional_uint32' => 42,
+            'optional_uint64' => 43,
+            'optional_sint32' => -44,
+            'optional_sint64' => -45,
+            'optional_fixed32' => 46,
+            'optional_fixed64' => 47,
+            'optional_sfixed32' => -46,
+            'optional_sfixed64' => -47,
+            'optional_float' => 1.5,
+            'optional_double' => 1.6,
+            'optional_bool' => true,
+            'optional_string' => 'a',
+            'optional_bytes' => 'bbbb',
+            'optional_enum' => TestEnum::ONE,
+            'optional_message' => new Sub([
+                'a' => 33
+            ]),
+            'repeated_int32' => [-42, -52],
+            'repeated_int64' => [-43, -53],
+            'repeated_uint32' => [42, 52],
+            'repeated_uint64' => [43, 53],
+            'repeated_sint32' => [-44, -54],
+            'repeated_sint64' => [-45, -55],
+            'repeated_fixed32' => [46, 56],
+            'repeated_fixed64' => [47, 57],
+            'repeated_sfixed32' => [-46, -56],
+            'repeated_sfixed64' => [-47, -57],
+            'repeated_float' => [1.5, 2.5],
+            'repeated_double' => [1.6, 2.6],
+            'repeated_bool' => [true, false],
+            'repeated_string' => ['a', 'c'],
+            'repeated_bytes' => ['bbbb', 'dddd'],
+            'repeated_enum' => [TestEnum::ZERO, TestEnum::ONE],
+            'repeated_message' => [new Sub(['a' => 34]),
+                                   new Sub(['a' => 35])],
+            'map_int32_int32' => [-62 => -62],
+            'map_int64_int64' => [-63 => -63],
+            'map_uint32_uint32' => [62 => 62],
+            'map_uint64_uint64' => [63 => 63],
+            'map_sint32_sint32' => [-64 => -64],
+            'map_sint64_sint64' => [-65 => -65],
+            'map_fixed32_fixed32' => [66 => 66],
+            'map_fixed64_fixed64' => [67 => 67],
+            'map_sfixed32_sfixed32' => [-68 => -68],
+            'map_sfixed64_sfixed64' => [-69 => -69],
+            'map_int32_float' => [1 => 3.5],
+            'map_int32_double' => [1 => 3.6],
+            'map_bool_bool' => [true => true],
+            'map_string_string' => ['e' => 'e'],
+            'map_int32_bytes' => [1 => 'ffff'],
+            'map_int32_enum' => [1 => TestEnum::ONE],
+            'map_int32_message' => [1 => new Sub(['a' => 36])],
+        ]);
+        $data = $m1->serializeToString();
+
+        $m2 = new TestMessage();
+        $m2->mergeFromString($data);
+        $this->assertTrue($m1 == $m2);
+
+        # Nested sub-message is checked.
+        $m2 = new TestMessage();
+        $m2->mergeFromString($data);
+        $m2->getOptionalMessage()->setA(1234);
+        $this->assertTrue($m1 != $m2);
+
+        # Repeated field element is checked.
+        $m2 = new TestMessage();
+        $m2->mergeFromString($data);
+        $m2->getRepeatedInt32()[0] = 1234;
+        $this->assertTrue($m1 != $m2);
+
+        # Repeated field length is checked.
+        $m2 = new TestMessage();
+        $m2->mergeFromString($data);
+        $m2->getRepeatedInt32()[] = 1234;
+        $this->assertTrue($m1 != $m2);
+
+        # SubMessage inside repeated field is checked.
+        $m2 = new TestMessage();
+        $m2->mergeFromString($data);
+        $m2->getRepeatedMessage()[0]->setA(1234);
+        $this->assertTrue($m1 != $m2);
+
+        # Map value is checked.
+        $m2 = new TestMessage();
+        $m2->mergeFromString($data);
+        $m2->getMapInt32Int32()[-62] = 1234;
+        $this->assertTrue($m1 != $m2);
+
+        # Map size is checked.
+        $m2 = new TestMessage();
+        $m2->mergeFromString($data);
+        $m2->getMapInt32Int32()[1234] = 1234;
+        $this->assertTrue($m1 != $m2);
+
+        # SubMessage inside map field is checked.
+        $m2 = new TestMessage();
+        $m2->mergeFromString($data);
+        $m2->getMapInt32Message()[1]->setA(1234);
+        $this->assertTrue($m1 != $m2);
+
+        # TODO: what about unknown fields?
+    }
+
+    #########################################################
+    # Test hasOneof<Field> methods exists and working
+    #########################################################
+
+    public function testHasOneof() {
+        $m = new TestMessage();
+        $this->assertFalse($m->hasOneofInt32());
+        $m->setOneofInt32(42);
+        $this->assertTrue($m->hasOneofInt32());
+        $m->setOneofString("bar");
+        $this->assertFalse($m->hasOneofInt32());
+        $this->assertTrue($m->hasOneofString());
+        $m->clear();
+        $this->assertFalse($m->hasOneofInt32());
+        $this->assertFalse($m->hasOneofString());
+    }
+
+    #########################################################
+    # Test that we don't crash if users create their own messages.
+    #########################################################
+
+    public function testUserDefinedClass() {
+        if (getenv("USE_ZEND_ALLOC") === "0") {
+            // We're running a memory test. This test appears to leak in a way
+            // we cannot control, PHP bug?
+            //
+            // TODO: investigate further.
+            $this->markTestSkipped();
+            return;
+        }
+
+        # This is not allowed, but at least we shouldn't crash.
+        $this->expectException(Exception::class);
+        new C();
     }
 
     #########################################################
@@ -1537,12 +1779,18 @@ class GeneratedClassTest extends TestBase
     {
         throw new Exception('Intended');
     }
-
-    /**
-     * @expectedException Exception
-     */
     public function testNoSegfaultWithError()
     {
+        if (getenv("USE_ZEND_ALLOC") === "0") {
+            // We're running a memory test. This test appears to leak in a way
+            // we cannot control, PHP bug?
+            //
+            // TODO: investigate further.
+            $this->markTestSkipped();
+            return;
+        }
+        $this->expectException(Exception::class);
+
         new TestMessage(['optional_int32' => $this->throwIntendedException()]);
     }
 
@@ -1565,5 +1813,7 @@ class GeneratedClassTest extends TestBase
          * The value we are passing to var_dump() appears to be corrupt somehow.
          */
         /* var_dump($m); */
+
+        $this->assertTrue(true);
     }
 }

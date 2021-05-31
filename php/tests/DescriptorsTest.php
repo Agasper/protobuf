@@ -1,7 +1,5 @@
 <?php
 
-require_once('generated/Descriptors/TestDescriptorsEnum.php');
-require_once('generated/Descriptors/TestDescriptorsMessage.php');
 require_once('test_base.php');
 require_once('test_util.php');
 
@@ -108,7 +106,7 @@ class DescriptorsTest extends TestBase
 
     public function testEnumDescriptor()
     {
-        // WARNINIG - we need to do this so that TestDescriptorsEnum is registered!!?
+        // WARNING - we need to do this so that TestDescriptorsEnum is registered!!?
         new TestDescriptorsMessage();
 
         $pool = DescriptorPool::getGeneratedPool();
@@ -205,22 +203,20 @@ class DescriptorsTest extends TestBase
         $this->assertSame(self::GPBTYPE_ENUM, $mapDesc->getField(1)->getType());
     }
 
-    /**
-     * @expectedException \Exception
-     */
     public function testFieldDescriptorEnumException()
     {
+        $this->expectException(Exception::class);
+
         $pool = DescriptorPool::getGeneratedPool();
         $desc = $pool->getDescriptorByClassName(get_class(new TestDescriptorsMessage()));
         $fieldDesc = $desc->getField(0);
         $fieldDesc->getEnumType();
     }
 
-    /**
-     * @expectedException \Exception
-     */
     public function testFieldDescriptorMessageException()
     {
+        $this->expectException(Exception::class);
+
         $pool = DescriptorPool::getGeneratedPool();
         $desc = $pool->getDescriptorByClassName(get_class(new TestDescriptorsMessage()));
         $fieldDesc = $desc->getField(0);
