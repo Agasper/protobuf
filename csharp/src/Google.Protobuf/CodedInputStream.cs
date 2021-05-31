@@ -131,7 +131,12 @@ namespace Google.Protobuf
             : this(ProtoPreconditions.CheckNotNull(input, "input"), new byte[BufferSize], 0, 0, leaveOpen)
         {
         }
-        
+
+        public CodedInputStream(Stream input, byte[] buffer, bool leaveOpen)
+            : this(ProtoPreconditions.CheckNotNull(input, "input"), ProtoPreconditions.CheckNotNull(buffer, "buffer"), 0, 0, leaveOpen)
+        {
+        }
+
         /// <summary>
         /// Creates a new CodedInputStream reading data from the given
         /// stream and buffer, using the default limits.
