@@ -95,7 +95,15 @@ namespace Google.Protobuf
             leaveOpen = true; // Simple way of avoiding trying to dispose of a null reference
         }
 
-        private CodedOutputStream(Stream output, byte[] buffer, bool leaveOpen)
+        /// <summary>
+        /// Creates a new CodedOutputStream which write to the given stream and uses
+        /// the specified buffer size.
+        /// </summary>
+        /// <param name="output">The stream to write to.</param>
+        /// <param name="buffer">The buffer to use internally.</param>
+        /// <param name="leaveOpen">If <c>true</c>, <paramref name="output"/> is left open when the returned <c>CodedOutputStream</c> is disposed;
+        /// if <c>false</c>, the provided stream is disposed as well.</param>
+        public CodedOutputStream(Stream output, byte[] buffer, bool leaveOpen)
         {
             this.output = ProtoPreconditions.CheckNotNull(output, nameof(output));
             this.buffer = buffer;
@@ -487,7 +495,7 @@ namespace Google.Protobuf
         #endregion
 
         #region Underlying writing primitives
-        
+
         /// <summary>
         /// Writes a 32 bit value as a varint. The fast route is taken when
         /// there's enough buffer space left to whizz through without checking

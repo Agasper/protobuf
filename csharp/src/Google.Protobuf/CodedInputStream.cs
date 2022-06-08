@@ -92,7 +92,7 @@ namespace Google.Protobuf
         /// Creates a new CodedInputStream reading data from the given byte array.
         /// </summary>
         public CodedInputStream(byte[] buffer) : this(null, ProtoPreconditions.CheckNotNull(buffer, "buffer"), 0, buffer.Length, true)
-        {            
+        {
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Google.Protobuf
         /// </summary>
         public CodedInputStream(byte[] buffer, int offset, int length)
             : this(null, ProtoPreconditions.CheckNotNull(buffer, "buffer"), offset, offset + length, true)
-        {            
+        {
             if (offset < 0 || offset > buffer.Length)
             {
                 throw new ArgumentOutOfRangeException("offset", "Offset must be within the buffer");
@@ -131,7 +131,20 @@ namespace Google.Protobuf
             : this(ProtoPreconditions.CheckNotNull(input, "input"), new byte[BufferSize], 0, 0, leaveOpen)
         {
         }
-        
+
+        /// <summary>
+        /// Creates a new <see cref="CodedInputStream"/> reading data from the given stream.
+        /// </summary>
+        /// <param name="input">The stream to read from.</param>
+        /// <param name="buffer">Buffer.</param>
+        /// <param name="leaveOpen"><c>true</c> to leave <paramref name="input"/> open when the returned
+        /// <c cref="CodedInputStream"/> is disposed; <c>false</c> to dispose of the given stream when the
+        /// returned object is disposed.</param>
+        public CodedInputStream(Stream input, byte[] buffer, bool leaveOpen)
+            : this(ProtoPreconditions.CheckNotNull(input, "input"), ProtoPreconditions.CheckNotNull(buffer, "buffer"), 0, 0, leaveOpen)
+        {
+        }
+
         /// <summary>
         /// Creates a new CodedInputStream reading data from the given
         /// stream and buffer, using the default limits.
@@ -197,7 +210,7 @@ namespace Google.Protobuf
         /// <summary>
         /// Returns the current position in the input stream, or the position in the input buffer
         /// </summary>
-        public long Position 
+        public long Position
         {
             get
             {
@@ -285,7 +298,7 @@ namespace Google.Protobuf
         /// Verifies that the last call to ReadTag() returned tag 0 - in other words,
         /// we've reached the end of the stream when we expected to.
         /// </summary>
-        /// <exception cref="InvalidProtocolBufferException">The 
+        /// <exception cref="InvalidProtocolBufferException">The
         /// tag read was not the one specified</exception>
         internal void CheckReadEndOfStreamTag()
         {
@@ -464,7 +477,7 @@ namespace Google.Protobuf
 
         /// <summary>
         /// Reads a bytes field value from the stream.
-        /// </summary>   
+        /// </summary>
         public ByteString ReadBytes()
         {
             var span = new ReadOnlySpan<byte>(buffer);
@@ -473,7 +486,7 @@ namespace Google.Protobuf
 
         /// <summary>
         /// Reads a uint32 field value from the stream.
-        /// </summary>   
+        /// </summary>
         public uint ReadUInt32()
         {
             return ReadRawVarint32();
@@ -481,7 +494,7 @@ namespace Google.Protobuf
 
         /// <summary>
         /// Reads an enum field value from the stream.
-        /// </summary>   
+        /// </summary>
         public int ReadEnum()
         {
             // Currently just a pass-through, but it's nice to separate it logically from WriteInt32.
@@ -490,7 +503,7 @@ namespace Google.Protobuf
 
         /// <summary>
         /// Reads an sfixed32 field value from the stream.
-        /// </summary>   
+        /// </summary>
         public int ReadSFixed32()
         {
             return (int) ReadRawLittleEndian32();
@@ -498,7 +511,7 @@ namespace Google.Protobuf
 
         /// <summary>
         /// Reads an sfixed64 field value from the stream.
-        /// </summary>   
+        /// </summary>
         public long ReadSFixed64()
         {
             return (long) ReadRawLittleEndian64();
@@ -506,7 +519,7 @@ namespace Google.Protobuf
 
         /// <summary>
         /// Reads an sint32 field value from the stream.
-        /// </summary>   
+        /// </summary>
         public int ReadSInt32()
         {
             return ParsingPrimitives.DecodeZigZag32(ReadRawVarint32());
@@ -514,7 +527,7 @@ namespace Google.Protobuf
 
         /// <summary>
         /// Reads an sint64 field value from the stream.
-        /// </summary>   
+        /// </summary>
         public long ReadSInt64()
         {
             return ParsingPrimitives.DecodeZigZag64(ReadRawVarint64());
