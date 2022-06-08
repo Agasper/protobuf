@@ -9,6 +9,7 @@ use Google\Protobuf\Internal\GPBType;
 use Bar\TestLegacyMessage;
 use Bar\TestLegacyMessage_NestedEnum;
 use Bar\TestLegacyMessage_NestedMessage;
+use Foo\Test32Fields;
 use Foo\TestEnum;
 use Foo\TestIncludeNamespaceMessage;
 use Foo\TestIncludePrefixMessage;
@@ -290,6 +291,10 @@ class GeneratedClassTest extends TestBase
         // Test Enum methods
         $this->assertEquals('ONE', TestEnum::name(1));
         $this->assertEquals(1, TestEnum::value('ONE'));
+        $this->assertEquals('ECHO', TestEnum::name(3));
+        $this->assertEquals(3, TestEnum::value('ECHO'));
+        // Backwards compat value lookup by prefixed-name.
+        $this->assertEquals(3, TestEnum::value('PBECHO'));
     }
 
     public function testInvalidEnumValueThrowsException()
@@ -478,10 +483,12 @@ class GeneratedClassTest extends TestBase
         $sub_m->setA(1);
         $m->setOptionalMessage($sub_m);
         $this->assertSame(1, $m->getOptionalMessage()->getA());
+        $this->assertTrue($m->hasOptionalMessage());
 
         $null = null;
         $m->setOptionalMessage($null);
         $this->assertNull($m->getOptionalMessage());
+        $this->assertFalse($m->hasOptionalMessage());
     }
 
     public function testLegacyMessageField()
@@ -563,7 +570,7 @@ class GeneratedClassTest extends TestBase
         $m->setMapInt32Int32($dict);
         $this->assertSame(0, count($m->getMapInt32Int32()));
 
-        $dict = array(5 => 5, 6.1 => 6.1, "7" => "7");
+        $dict = array(5 => 5, 6 => 6.1, "7" => "7");
         $m->setMapInt32Int32($dict);
         $this->assertTrue($m->getMapInt32Int32() instanceof MapField);
         $this->assertSame(3, count($m->getMapInt32Int32()));
@@ -911,6 +918,8 @@ class GeneratedClassTest extends TestBase
         $m = new \Lower\PBexit();
         $m = new \Lower\PBextends();
         $m = new \Lower\PBfinal();
+        $m = new \Lower\PBfinally();
+        $m = new \Lower\PBfn();
         $m = new \Lower\PBfor();
         $m = new \Lower\PBforeach();
         $m = new \Lower\PBfunction();
@@ -925,9 +934,11 @@ class GeneratedClassTest extends TestBase
         $m = new \Lower\PBinterface();
         $m = new \Lower\PBisset();
         $m = new \Lower\PBlist();
+        $m = new \Lower\PBmatch();
         $m = new \Lower\PBnamespace();
         $m = new \Lower\PBnew();
         $m = new \Lower\PBor();
+        $m = new \Lower\PBparent();
         $m = new \Lower\PBprint();
         $m = new \Lower\PBprivate();
         $m = new \Lower\PBprotected();
@@ -935,6 +946,7 @@ class GeneratedClassTest extends TestBase
         $m = new \Lower\PBrequire();
         $m = new \Lower\PBrequire_once();
         $m = new \Lower\PBreturn();
+        $m = new \Lower\PBself();
         $m = new \Lower\PBstatic();
         $m = new \Lower\PBswitch();
         $m = new \Lower\PBthrow();
@@ -945,6 +957,7 @@ class GeneratedClassTest extends TestBase
         $m = new \Lower\PBvar();
         $m = new \Lower\PBwhile();
         $m = new \Lower\PBxor();
+        $m = new \Lower\PByield();
         $m = new \Lower\PBint();
         $m = new \Lower\PBfloat();
         $m = new \Lower\PBbool();
@@ -985,6 +998,8 @@ class GeneratedClassTest extends TestBase
         $m = new \Upper\PBEXIT();
         $m = new \Upper\PBEXTENDS();
         $m = new \Upper\PBFINAL();
+        $m = new \Upper\PBFINALLY();
+        $m = new \Upper\PBFN();
         $m = new \Upper\PBFOR();
         $m = new \Upper\PBFOREACH();
         $m = new \Upper\PBFUNCTION();
@@ -999,9 +1014,11 @@ class GeneratedClassTest extends TestBase
         $m = new \Upper\PBINTERFACE();
         $m = new \Upper\PBISSET();
         $m = new \Upper\PBLIST();
+        $m = new \Upper\PBMATCH();
         $m = new \Upper\PBNAMESPACE();
         $m = new \Upper\PBNEW();
         $m = new \Upper\PBOR();
+        $m = new \Upper\PBPARENT();
         $m = new \Upper\PBPRINT();
         $m = new \Upper\PBPRIVATE();
         $m = new \Upper\PBPROTECTED();
@@ -1009,6 +1026,7 @@ class GeneratedClassTest extends TestBase
         $m = new \Upper\PBREQUIRE();
         $m = new \Upper\PBREQUIRE_ONCE();
         $m = new \Upper\PBRETURN();
+        $m = new \Upper\PBSELF();
         $m = new \Upper\PBSTATIC();
         $m = new \Upper\PBSWITCH();
         $m = new \Upper\PBTHROW();
@@ -1019,6 +1037,7 @@ class GeneratedClassTest extends TestBase
         $m = new \Upper\PBVAR();
         $m = new \Upper\PBWHILE();
         $m = new \Upper\PBXOR();
+        $m = new \Upper\PBYIELD();
         $m = new \Upper\PBINT();
         $m = new \Upper\PBFLOAT();
         $m = new \Upper\PBBOOL();
@@ -1059,6 +1078,8 @@ class GeneratedClassTest extends TestBase
         $m = new \Lower_enum\PBexit();
         $m = new \Lower_enum\PBextends();
         $m = new \Lower_enum\PBfinal();
+        $m = new \Lower_enum\PBfinally();
+        $m = new \Lower_enum\PBfn();
         $m = new \Lower_enum\PBfor();
         $m = new \Lower_enum\PBforeach();
         $m = new \Lower_enum\PBfunction();
@@ -1073,9 +1094,11 @@ class GeneratedClassTest extends TestBase
         $m = new \Lower_enum\PBinterface();
         $m = new \Lower_enum\PBisset();
         $m = new \Lower_enum\PBlist();
+        $m = new \Lower_enum\PBmatch();
         $m = new \Lower_enum\PBnamespace();
         $m = new \Lower_enum\PBnew();
         $m = new \Lower_enum\PBor();
+        $m = new \Lower_enum\PBparent();
         $m = new \Lower_enum\PBprint();
         $m = new \Lower_enum\PBprivate();
         $m = new \Lower_enum\PBprotected();
@@ -1083,6 +1106,7 @@ class GeneratedClassTest extends TestBase
         $m = new \Lower_enum\PBrequire();
         $m = new \Lower_enum\PBrequire_once();
         $m = new \Lower_enum\PBreturn();
+        $m = new \Lower_enum\PBself();
         $m = new \Lower_enum\PBstatic();
         $m = new \Lower_enum\PBswitch();
         $m = new \Lower_enum\PBthrow();
@@ -1093,6 +1117,7 @@ class GeneratedClassTest extends TestBase
         $m = new \Lower_enum\PBvar();
         $m = new \Lower_enum\PBwhile();
         $m = new \Lower_enum\PBxor();
+        $m = new \Lower_enum\PByield();
         $m = new \Lower_enum\PBint();
         $m = new \Lower_enum\PBfloat();
         $m = new \Lower_enum\PBbool();
@@ -1133,6 +1158,8 @@ class GeneratedClassTest extends TestBase
         $m = new \Upper_enum\PBEXIT();
         $m = new \Upper_enum\PBEXTENDS();
         $m = new \Upper_enum\PBFINAL();
+        $m = new \Upper_enum\PBFINALLY();
+        $m = new \Upper_enum\PBFN();
         $m = new \Upper_enum\PBFOR();
         $m = new \Upper_enum\PBFOREACH();
         $m = new \Upper_enum\PBFUNCTION();
@@ -1147,9 +1174,11 @@ class GeneratedClassTest extends TestBase
         $m = new \Upper_enum\PBINTERFACE();
         $m = new \Upper_enum\PBISSET();
         $m = new \Upper_enum\PBLIST();
+        $m = new \Upper_enum\PBMATCH();
         $m = new \Upper_enum\PBNAMESPACE();
         $m = new \Upper_enum\PBNEW();
         $m = new \Upper_enum\PBOR();
+        $m = new \Upper_enum\PBPARENT();
         $m = new \Upper_enum\PBPRINT();
         $m = new \Upper_enum\PBPRIVATE();
         $m = new \Upper_enum\PBPROTECTED();
@@ -1157,6 +1186,7 @@ class GeneratedClassTest extends TestBase
         $m = new \Upper_enum\PBREQUIRE();
         $m = new \Upper_enum\PBREQUIRE_ONCE();
         $m = new \Upper_enum\PBRETURN();
+        $m = new \Upper_enum\PBSELF();
         $m = new \Upper_enum\PBSTATIC();
         $m = new \Upper_enum\PBSWITCH();
         $m = new \Upper_enum\PBTHROW();
@@ -1167,6 +1197,7 @@ class GeneratedClassTest extends TestBase
         $m = new \Upper_enum\PBVAR();
         $m = new \Upper_enum\PBWHILE();
         $m = new \Upper_enum\PBXOR();
+        $m = new \Upper_enum\PBYIELD();
         $m = new \Upper_enum\PBINT();
         $m = new \Upper_enum\PBFLOAT();
         $m = new \Upper_enum\PBBOOL();
@@ -1207,6 +1238,8 @@ class GeneratedClassTest extends TestBase
         $m = \Lower_enum_value\NotAllowed::PBexit;
         $m = \Lower_enum_value\NotAllowed::PBextends;
         $m = \Lower_enum_value\NotAllowed::PBfinal;
+        $m = \Lower_enum_value\NotAllowed::PBfinally;
+        $m = \Lower_enum_value\NotAllowed::PBfn;
         $m = \Lower_enum_value\NotAllowed::PBfor;
         $m = \Lower_enum_value\NotAllowed::PBforeach;
         $m = \Lower_enum_value\NotAllowed::PBfunction;
@@ -1221,6 +1254,7 @@ class GeneratedClassTest extends TestBase
         $m = \Lower_enum_value\NotAllowed::PBinterface;
         $m = \Lower_enum_value\NotAllowed::PBisset;
         $m = \Lower_enum_value\NotAllowed::PBlist;
+        $m = \Lower_enum_value\NotAllowed::PBmatch;
         $m = \Lower_enum_value\NotAllowed::PBnamespace;
         $m = \Lower_enum_value\NotAllowed::PBnew;
         $m = \Lower_enum_value\NotAllowed::PBor;
@@ -1241,6 +1275,7 @@ class GeneratedClassTest extends TestBase
         $m = \Lower_enum_value\NotAllowed::PBvar;
         $m = \Lower_enum_value\NotAllowed::PBwhile;
         $m = \Lower_enum_value\NotAllowed::PBxor;
+        $m = \Lower_enum_value\NotAllowed::PByield;
         $m = \Lower_enum_value\NotAllowed::int;
         $m = \Lower_enum_value\NotAllowed::float;
         $m = \Lower_enum_value\NotAllowed::bool;
@@ -1250,6 +1285,8 @@ class GeneratedClassTest extends TestBase
         $m = \Lower_enum_value\NotAllowed::null;
         $m = \Lower_enum_value\NotAllowed::void;
         $m = \Lower_enum_value\NotAllowed::iterable;
+        $m = \Lower_enum_value\NotAllowed::parent;
+        $m = \Lower_enum_value\NotAllowed::self;
 
         $m = \Upper_enum_value\NotAllowed::PBABSTRACT;
         $m = \Upper_enum_value\NotAllowed::PBAND;
@@ -1281,6 +1318,8 @@ class GeneratedClassTest extends TestBase
         $m = \Upper_enum_value\NotAllowed::PBEXIT;
         $m = \Upper_enum_value\NotAllowed::PBEXTENDS;
         $m = \Upper_enum_value\NotAllowed::PBFINAL;
+        $m = \Upper_enum_value\NotAllowed::PBFINALLY;
+        $m = \Upper_enum_value\NotAllowed::PBFN;
         $m = \Upper_enum_value\NotAllowed::PBFOR;
         $m = \Upper_enum_value\NotAllowed::PBFOREACH;
         $m = \Upper_enum_value\NotAllowed::PBFUNCTION;
@@ -1295,6 +1334,7 @@ class GeneratedClassTest extends TestBase
         $m = \Upper_enum_value\NotAllowed::PBINTERFACE;
         $m = \Upper_enum_value\NotAllowed::PBISSET;
         $m = \Upper_enum_value\NotAllowed::PBLIST;
+        $m = \Upper_enum_value\NotAllowed::PBMATCH;
         $m = \Upper_enum_value\NotAllowed::PBNAMESPACE;
         $m = \Upper_enum_value\NotAllowed::PBNEW;
         $m = \Upper_enum_value\NotAllowed::PBOR;
@@ -1315,6 +1355,7 @@ class GeneratedClassTest extends TestBase
         $m = \Upper_enum_value\NotAllowed::PBVAR;
         $m = \Upper_enum_value\NotAllowed::PBWHILE;
         $m = \Upper_enum_value\NotAllowed::PBXOR;
+        $m = \Upper_enum_value\NotAllowed::PBYIELD;
         $m = \Upper_enum_value\NotAllowed::INT;
         $m = \Upper_enum_value\NotAllowed::FLOAT;
         $m = \Upper_enum_value\NotAllowed::BOOL;
@@ -1324,6 +1365,8 @@ class GeneratedClassTest extends TestBase
         $m = \Upper_enum_value\NotAllowed::NULL;
         $m = \Upper_enum_value\NotAllowed::VOID;
         $m = \Upper_enum_value\NotAllowed::ITERABLE;
+        $m = \Upper_enum_value\NotAllowed::PARENT;
+        $m = \Upper_enum_value\NotAllowed::SELF;
 
         $this->assertTrue(true);
     }
@@ -1750,6 +1793,13 @@ class GeneratedClassTest extends TestBase
         $m->clear();
         $this->assertFalse($m->hasOneofInt32());
         $this->assertFalse($m->hasOneofString());
+
+        $sub_m = new Sub();
+        $sub_m->setA(1);
+        $m->setOneofMessage($sub_m);
+        $this->assertTrue($m->hasOneofMessage());
+        $m->setOneofMessage(null);
+        $this->assertFalse($m->hasOneofMessage());
     }
 
     #########################################################
@@ -1815,5 +1865,14 @@ class GeneratedClassTest extends TestBase
         /* var_dump($m); */
 
         $this->assertTrue(true);
+    }
+
+    public function testIssue9440()
+    {
+        $m = new Test32Fields();
+        $m->setId(8);
+        $this->assertEquals(8, $m->getId());
+        $m->setVersion('1');
+        $this->assertEquals(8, $m->getId());
     }
 }

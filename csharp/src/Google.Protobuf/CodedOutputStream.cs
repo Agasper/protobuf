@@ -85,7 +85,7 @@ namespace Google.Protobuf
         /// byte array slice. If more bytes are written than fit in the array,
         /// OutOfSpaceException will be thrown.
         /// </summary>
-        public CodedOutputStream(byte[] buffer, int offset, int length)
+        private CodedOutputStream(byte[] buffer, int offset, int length)
         {
             this.output = null;
             this.buffer = ProtoPreconditions.CheckNotNull(buffer, nameof(buffer));
@@ -95,10 +95,10 @@ namespace Google.Protobuf
             leaveOpen = true; // Simple way of avoiding trying to dispose of a null reference
         }
 
-        public CodedOutputStream(Stream output, byte[] buffer, bool leaveOpen)
+        private CodedOutputStream(Stream output, byte[] buffer, bool leaveOpen)
         {
             this.output = ProtoPreconditions.CheckNotNull(output, nameof(output));
-            this.buffer = ProtoPreconditions.CheckNotNull(buffer, "buffer");
+            this.buffer = buffer;
             this.state.position = 0;
             this.state.limit = buffer.Length;
             WriteBufferHelper.Initialize(this, out this.state.writeBufferHelper);
